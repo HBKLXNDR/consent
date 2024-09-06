@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consent Banner</title>
+  <style>
+    /* Basic styling for the consent banner */
+    #consent-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #consent-banner button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    #consent-banner button.deny {
+      background-color: #f44336;
+    }
+    #consent-banner button:focus {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Consent Banner -->
+<div id="consent-banner" role="dialog" aria-labelledby="consent-message" aria-live="polite">
+  <span id="consent-message">We use cookies to enhance your experience. Do you accept?</span>
+  <div>
+    <button id="accept-all" aria-label="Accept All Cookies">Accept All</button>
+    <button id="deny-all" class="deny" aria-label="Deny All Cookies">Deny All</button>
+  </div>
+</div>
+
+<!-- Google Tag Manager and Consent Script -->
+<script>
+  (function() {
+    // Utility function to set consent
+    function setConsent(consent) {
+      try {
+        gtag('consent', 'update', consent);
+        localStorage.setItem('userConsent', JSON.stringify(consent));
+        hideConsentBanner();
+      } catch (error) {
+        console.error('Error setting consent:', error);
+      }
+    }
+
+    // Hide the consent banner
+    function hideConsentBanner() {
+      const banner = document.getElementById('consent-banner');
+      if (banner) {
+        banner.style.display = 'none';
+      }
+    }
+
+    // Check for stored consent preference
+    function checkConsent() {
+      try {
+        const storedConsent = localStorage.getItem('userConsent');
+        if (storedConsent) {
+          const consent = JSON.parse(storedConsent);
+          setConsent(consent);
+        }
+      } catch (error) {
+        console.error('Error checking consent:', error);
+      }
+    }
+
+    // Initialize consent banner
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if consent is already set
+      checkConsent();
+
+      // Set default consent status to 'denied'
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied'
+      });
+
+      // Attach event listeners to buttons
+      document.getElementById('accept-all').addEventListener('click', function() {
+        setConsent({
+          'ad_storage': 'granted',
+          'ad_user_data': 'granted',
+          'ad_personalization': 'granted',
+          'analytics_storage': 'granted'
+        });
+      });
+
+      document.getElementById('deny-all').addEventListener('click', function() {
+        setConsent({
+          'ad_storage': 'denied',
+          'ad_user_data': 'denied',
+          'ad_personalization': 'denied',
+          'analytics_storage': 'denied'
+        });
+      });
+    });
+  })();
+
+  // Load Google Tag Manager script asynchronously
+  (function(w, d, s, l, i){
+    w[l] = w[l] || []; w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+    var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+    j.async = true; j.src = 'https://www.googletagmanager.com/gtag/js?id=' + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(window, document, 'script', 'dataLayer', 'TAG_ID');
+
+  function gtag() { dataLayer.push(arguments); }
+</script>
+
+</body>
+</html>
